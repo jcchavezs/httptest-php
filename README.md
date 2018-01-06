@@ -1,8 +1,15 @@
 # Http Test
 
-Provides utilities for HTTP integration testing.
+Library for for HTTP integration tests.
 
 HttpTest is strongly inspired on the [httptest go library](https://golang.org/pkg/net/http/httptest)
+
+## Description
+
+When testing class methods that include HTTP calls developers often create a wrapper class around `cURL`
+functions and mock that class in order to unit test it. This technique unit tests the class but it is 
+also important to test the actual HTTP call which requires an HTTP server listening to those calls. This
+library provides such a server and allow developers to do assertions both in the client and server side.
 
 ## Installation
 
@@ -12,7 +19,7 @@ composer require --dev jcchavezs/httptest
 
 ## Example
 
-Test a `cURL` http request:
+Test a `cURL` HTTP request:
 
 ```php
 <?php
@@ -35,6 +42,7 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
 
         $server = TestServer::create(
             function (RequestInterface $request, ResponseInterface &$response) use ($t) {
+                /* Assert the HTTP call includes the expected values */
                 $t->assertEquals('POST', $request->getMethod());
                 $t->assertEquals('application/json', $request->getHeader('Content-Type')[0]);
                 $t->assertEquals(self::TEST_BODY, (string) $request->getBody());
@@ -61,6 +69,7 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
                 $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
                 curl_close($handle);
 
+                /* Assert client behaviour based on the server response */
                 $this->assertEquals(self::TEST_STATUS_CODE, $statusCode);
             } else {
                 $this->fail(curl_error($handle));
