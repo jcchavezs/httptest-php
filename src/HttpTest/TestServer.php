@@ -13,6 +13,7 @@ use RuntimeException;
 class TestServer
 {
     const HOST = 'localhost';
+
     const MAX_NUMBER_OF_RETRIES = 10;
 
     /**
@@ -30,11 +31,17 @@ class TestServer
      */
     private $port;
 
-    private function __construct($handler, LoopInterface $loop, $port)
+    /**
+     * @var Key
+     */
+    private $key;
+
+    private function __construct($handler, LoopInterface $loop, $port, $key)
     {
         $this->handler = $handler;
         $this->loop = $loop;
         $this->port = $port;
+        $this->key = $key;
     }
 
     /**
@@ -43,9 +50,19 @@ class TestServer
      */
     public static function create($handler)
     {
+        $key = Key::create();
+
         $port = self::findAvailablePort();
+
         $loop = Factory::create();
-        return new self($handler, $loop, $port);
+        $loop->addPeriodicTimer(0.1, function () use (&$loop, $key) {
+            if ($key->isOn()) {
+                $loop->stop();
+                $key->off();
+            }
+        });
+
+        return new self($handler, $loop, $port, $key);
     }
 
     /**
@@ -76,7 +93,7 @@ class TestServer
      */
     public function stop()
     {
-        $this->loop->stop();
+        $this->key->on();
     }
 
     /**
@@ -110,7 +127,7 @@ class TestServer
             usleep(200 * $retries);
             $waitTimeoutInSeconds = 1;
 
-            if($fp = @fsockopen(self::HOST,$this->port,$errCode,$errStr,$waitTimeoutInSeconds)){
+            if ($fp = @fsockopen(self::HOST, $this->port, $errCode, $errStr, $waitTimeoutInSeconds)) {
                 fclose($fp);
                 break;
             }
