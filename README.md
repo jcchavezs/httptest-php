@@ -55,6 +55,9 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
         if ($pid === -1) {
             $this->fail('Error forking thread.');
         } elseif ($pid) {
+            /* The form allows to run the HTTP server in background. */
+            $server->start();
+        } else {
             $server->waitForReady();
 
             $handle = curl_init($server->getUrl());
@@ -74,11 +77,9 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
             } else {
                 $this->fail(curl_error($handle));
             }
-        } else {
-            $server->start();
+            
+            $server->stop();
         }
-
-        $server->stop();
     }
 }
 ```
