@@ -1,5 +1,10 @@
 # Http Test
 
+[![Build Status](https://travis-ci.org/jcchavezs/httptest-php.svg?branch=0.1-beta1)](https://travis-ci.org/jcchavezs/httptest-php)
+[![Latest Stable Version](https://poser.pugx.org/jcchavezs/httptest/v/stable)](https://packagist.org/packages/jcchavezs/httptest)
+[![Total Downloads](https://poser.pugx.org/jcchavezs/httptest/downloads)](https://packagist.org/packages/jcchavezs/httptest)
+[![License](https://poser.pugx.org/jcchavezs/httptest/license)](https://packagist.org/packages/jcchavezs/httptest)
+
 Library for for HTTP integration tests.
 
 HttpTest is strongly inspired on the [httptest go library](https://golang.org/pkg/net/http/httptest)
