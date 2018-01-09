@@ -2,12 +2,12 @@
 
 namespace HttpTest\Tests\Integration;
 
-use HttpTest\TestServer;
+use HttpTest\HttpTestServer;
 use PHPUnit_Framework_TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class TestServerTest extends PHPUnit_Framework_TestCase
+final class HttpTestServerTest extends PHPUnit_Framework_TestCase
 {
     const TEST_BODY = 'test_body';
     const TEST_STATUS_CODE = 202;
@@ -16,7 +16,7 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
     {
         $t = $this;
 
-        $server = TestServer::create(
+        $server = HttpTestServer::create(
             function (RequestInterface $request, ResponseInterface &$response) use ($t) {
                 $t->assertEquals('POST', $request->getMethod());
                 $t->assertEquals('application/json', $request->getHeader('Content-Type')[0]);
