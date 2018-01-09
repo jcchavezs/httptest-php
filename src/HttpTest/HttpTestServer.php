@@ -10,11 +10,13 @@ use React\Http\Server as HttpServer;
 use React\Socket\Server as SocketServer;
 use RuntimeException;
 
-class TestServer
+class HttpTestServer
 {
     const HOST = 'localhost';
 
     const MAX_NUMBER_OF_RETRIES = 10;
+
+    const SWITCH_CHECKER_INTERVAL = 0.1;
 
     /**
      * @var LoopInterface
@@ -32,37 +34,37 @@ class TestServer
     private $port;
 
     /**
-     * @var Key
+     * @var ServerSwitch
      */
-    private $key;
+    private $switch;
 
     private function __construct($handler, LoopInterface $loop, $port, $key)
     {
         $this->handler = $handler;
         $this->loop = $loop;
         $this->port = $port;
-        $this->key = $key;
+        $this->switch = $key;
     }
 
     /**
      * @param callable $handler
-     * @return TestServer
+     * @return HttpTestServer
      */
     public static function create($handler)
     {
-        $key = Key::create();
+        $serverSwitch = ServerSwitch::create();
 
         $port = self::findAvailablePort();
 
         $loop = Factory::create();
-        $loop->addPeriodicTimer(0.1, function () use (&$loop, $key) {
-            if ($key->isOn()) {
+        $loop->addPeriodicTimer(self::SWITCH_CHECKER_INTERVAL, function () use (&$loop, $serverSwitch) {
+            if ($serverSwitch->isOn()) {
                 $loop->stop();
-                $key->off();
+                $serverSwitch->off();
             }
         });
 
-        return new self($handler, $loop, $port, $key);
+        return new self($handler, $loop, $port, $serverSwitch);
     }
 
     /**
@@ -93,7 +95,7 @@ class TestServer
      */
     public function stop()
     {
-        $this->key->on();
+        $this->switch->on();
     }
 
     /**
@@ -125,9 +127,8 @@ class TestServer
             }
 
             usleep(200 * $retries);
-            $waitTimeoutInSeconds = 1;
 
-            if ($fp = @fsockopen(self::HOST, $this->port, $errCode, $errStr, $waitTimeoutInSeconds)) {
+            if ($fp = @fsockopen(self::HOST, $this->port, $errorCode, $errorMessage, 1)) {
                 fclose($fp);
                 break;
             }

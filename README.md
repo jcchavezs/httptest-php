@@ -1,6 +1,6 @@
 # Http Test
 
-[![Build Status](https://travis-ci.org/jcchavezs/httptest-php.svg?branch=0.1-beta1)](https://travis-ci.org/jcchavezs/httptest-php)
+[![Build Status](https://travis-ci.org/jcchavezs/httptest-php.svg?branch=master)](https://travis-ci.org/jcchavezs/httptest-php)
 [![Latest Stable Version](https://poser.pugx.org/jcchavezs/httptest/v/stable)](https://packagist.org/packages/jcchavezs/httptest)
 [![Total Downloads](https://poser.pugx.org/jcchavezs/httptest/downloads)](https://packagist.org/packages/jcchavezs/httptest)
 [![License](https://poser.pugx.org/jcchavezs/httptest/license)](https://packagist.org/packages/jcchavezs/httptest)
@@ -11,7 +11,7 @@ HttpTest is strongly inspired on the [httptest go library](https://golang.org/pk
 
 ## Description
 
-When testing class methods that include HTTP calls developers often create a wrapper class around `cURL`
+When testing functions that include HTTP calls, developers often create a wrapper class around `cURL`
 functions and mock that class in order to unit test it. This technique unit tests the class but it is 
 also important to test the actual HTTP call which requires an HTTP server listening to those calls. This
 library provides such a server and allow developers to do assertions both in the client and server side.
@@ -31,7 +31,7 @@ Test a `cURL` HTTP request:
 
 namespace HttpTest\Tests\Integration;
 
-use HttpTest\TestServer;
+use HttpTest\HttpTestServer;
 use PHPUnit_Framework_TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -45,7 +45,7 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
     {
         $t = $this;
 
-        $server = TestServer::create(
+        $server = HttpTestServer::create(
             function (RequestInterface $request, ResponseInterface &$response) use ($t) {
                 /* Assert the HTTP call includes the expected values */
                 $t->assertEquals('POST', $request->getMethod());
@@ -60,7 +60,7 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
         if ($pid === -1) {
             $this->fail('Error forking thread.');
         } elseif ($pid) {
-            /* The form allows to run the HTTP server in background. */
+            /* The fork allows to run the HTTP server in background. */
             $server->start();
         } else {
             $server->waitForReady();
