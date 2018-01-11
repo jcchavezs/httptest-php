@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jcchavezs/httptest-php.svg?branch=master)](https://travis-ci.org/jcchavezs/httptest-php)
 [![Latest Stable Version](https://poser.pugx.org/jcchavezs/httptest/v/stable)](https://packagist.org/packages/jcchavezs/httptest)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
 [![Total Downloads](https://poser.pugx.org/jcchavezs/httptest/downloads)](https://packagist.org/packages/jcchavezs/httptest)
 [![License](https://poser.pugx.org/jcchavezs/httptest/license)](https://packagist.org/packages/jcchavezs/httptest)
 
