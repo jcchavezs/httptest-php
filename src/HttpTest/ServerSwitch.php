@@ -28,7 +28,7 @@ final class ServerSwitch
      * @return void
      * @throws \RuntimeException
      */
-    public function on()
+    public function off()
     {
         if (false === touch($this->filename)) {
             throw new RuntimeException('Server could not be turned on');
@@ -38,7 +38,7 @@ final class ServerSwitch
     /**
      * @return bool
      */
-    public function isOn()
+    public function isOff()
     {
         return file_exists($this->filename);
     }
@@ -47,7 +47,7 @@ final class ServerSwitch
      * @return void
      * @throws \RuntimeException
      */
-    public function off()
+    public function on()
     {
         if (false === unlink($this->filename)) {
             throw new RuntimeException('Server could not be turned on');
