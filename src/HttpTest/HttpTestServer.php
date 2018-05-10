@@ -58,9 +58,9 @@ class HttpTestServer
 
         $loop = Factory::create();
         $loop->addPeriodicTimer(self::SWITCH_CHECKER_INTERVAL, function () use (&$loop, $serverSwitch) {
-            if ($serverSwitch->isOn()) {
+            if ($serverSwitch->isOff()) {
                 $loop->stop();
-                $serverSwitch->off();
+                $serverSwitch->on();
             }
         });
 
@@ -95,7 +95,7 @@ class HttpTestServer
      */
     public function stop()
     {
-        $this->switch->on();
+        $this->switch->off();
     }
 
     /**
