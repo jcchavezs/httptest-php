@@ -26,39 +26,28 @@ final class HttpTestServerTest extends PHPUnit_Framework_TestCase
             }
         );
 
-        $pid = pcntl_fork();
-        if ($pid === -1) {
-            $this->fail('Error forking thread.');
-        } elseif ($pid) {
-            $server->start();
+        $server->start();
 
-            pcntl_wait($status);
+        $handle = curl_init($server->getUrl());
+        curl_setopt($handle, CURLOPT_POST, 1);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, self::TEST_BODY);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen(self::TEST_BODY),
+        ]);
+
+        if (curl_exec($handle) === true) {
+            $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+            curl_close($handle);
+
+            $this->assertEquals(self::TEST_SUCCESS_STATUS_CODE, $statusCode);
         } else {
-            $server->waitForReady();
-
-            $handle = curl_init($server->getUrl());
-            curl_setopt($handle, CURLOPT_POST, 1);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, self::TEST_BODY);
-            curl_setopt($handle, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen(self::TEST_BODY),
-            ]);
-
-            if (curl_exec($handle) === true) {
-                $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-                curl_close($handle);
-
-                $this->assertEquals(self::TEST_SUCCESS_STATUS_CODE, $statusCode);
-            } else {
-                $server->stop();
-
-                $this->fail(curl_error($handle));
-            }
-
             $server->stop();
 
-            exit;
+            $this->fail(curl_error($handle));
         }
+
+        $server->stop();
     }
 
     public function testHttpFails()
@@ -74,29 +63,18 @@ final class HttpTestServerTest extends PHPUnit_Framework_TestCase
             }
         );
 
-        $pid = pcntl_fork();
-        if ($pid === -1) {
-            $this->fail('Error forking thread.');
-        } elseif ($pid) {
-            $server->start();
+        $server->start();
 
-            pcntl_wait($status);
-        } else {
-            $server->waitForReady();
+        $handle = curl_init($server->getUrl());
+        curl_setopt($handle, CURLOPT_POST, 1);
+        curl_setopt($handle, CURLOPT_FAILONERROR, 1);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
 
-            $handle = curl_init($server->getUrl());
-            curl_setopt($handle, CURLOPT_POST, 1);
-            curl_setopt($handle, CURLOPT_FAILONERROR, 1);
-            curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
-
-            if (curl_exec($handle) !== false) {
-                $server->stop();
-                $this->fail('Unexpected success.');
-            }
-
+        if (curl_exec($handle) !== false) {
             $server->stop();
-
-            exit;
+            $this->fail('Unexpected success.');
         }
+
+        $server->stop();
     }
 }

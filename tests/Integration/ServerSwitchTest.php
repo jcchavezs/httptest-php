@@ -15,7 +15,7 @@ final class ServerSwitchTest extends PHPUnit_Framework_TestCase
         $switch->off();
         $this->assertTrue($switch->isOff());
 
-        $switch->on();
+        $switch->reset();
         $this->assertFalse($switch->isOff());
     }
 }

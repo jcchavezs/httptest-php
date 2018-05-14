@@ -56,45 +56,31 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
             }
         );
 
-        $pid = pcntl_fork();
+        $server->start();
 
-        if ($pid === -1) {
-            $this->fail('Error forking thread.');
-        } elseif ($pid) {
-            // The fork allows to run the HTTP server in background.
-            $server->start();
-            
-            // This prevents zombie child process
-            pcntl_wait($status);
+        $handle = curl_init($server->getUrl());
+        curl_setopt($handle, CURLOPT_POST, 1);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, self::TEST_BODY);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen(self::TEST_BODY),
+        ]);
+
+        if (curl_exec($handle) === true) {
+            $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+            curl_close($handle);
+
+            // Assert client behaviour based on the server response
+            $this->assertEquals(self::TEST_STATUS_CODE, $statusCode);
         } else {
-            $server->waitForReady();
-
-            $handle = curl_init($server->getUrl());
-            curl_setopt($handle, CURLOPT_POST, 1);
-            curl_setopt($handle, CURLOPT_POSTFIELDS, self::TEST_BODY);
-            curl_setopt($handle, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen(self::TEST_BODY),
-            ]);
-
-            if (curl_exec($handle) === true) {
-                $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-                curl_close($handle);
-
-                // Assert client behaviour based on the server response
-                $this->assertEquals(self::TEST_STATUS_CODE, $statusCode);
-            } else {
-                // Stop the server before as `$this->fail(...)` throws an exception
-                // In a try/catch block, this should be in the finally block
-                $server->stop();
-                
-                $this->fail(curl_error($handle));
-            }
-            
+            // Stop the server before as `$this->fail(...)` throws an exception
+            // In a try/catch block, this should be in the finally block
             $server->stop();
             
-            exit;
+            $this->fail(curl_error($handle));
         }
+        
+        $server->stop();
     }
 }
 ```
