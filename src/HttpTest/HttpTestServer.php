@@ -60,7 +60,7 @@ class HttpTestServer
         $loop->addPeriodicTimer(self::SWITCH_CHECKER_INTERVAL, function () use (&$loop, $serverSwitch) {
             if ($serverSwitch->isOff()) {
                 $loop->stop();
-                $serverSwitch->on();
+                $serverSwitch->reset();
             }
         });
 
@@ -71,6 +71,7 @@ class HttpTestServer
      * Starts the server
      *
      * @return void
+     * @throws ServerCouldNotBeLaunched
      */
     public function start()
     {
@@ -85,7 +86,18 @@ class HttpTestServer
         $socket = new SocketServer($this->port, $this->loop);
         $server->listen($socket);
 
-        $this->loop->run();
+        $pid = pcntl_fork();
+        if ($pid === -1) {
+            ServerCouldNotBeLaunched::forFailedForking();
+        } elseif ($pid) {
+            $this->loop->run();
+
+            pcntl_wait($status);
+
+            exit(0);
+        } else {
+            $this->waitForReady();
+        }
     }
 
     /**
@@ -112,18 +124,16 @@ class HttpTestServer
      * Waits for the server to be ready
      *
      * @return void
-     * @throws \RuntimeException
+     * @throws ServerCouldNotBeLaunched
      */
-    public function waitForReady()
+    private function waitForReady()
     {
         $retries = 1;
         $error = true;
 
         while ($error) {
             if ($retries === self::MAX_NUMBER_OF_RETRIES) {
-                throw new RuntimeException(
-                    sprintf('Could not launch server after %d attempts', $retries)
-                );
+                ServerCouldNotBeLaunched::forMaxAttempts($retries);
             }
 
             usleep(200 * $retries);

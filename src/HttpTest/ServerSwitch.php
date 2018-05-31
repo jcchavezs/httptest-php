@@ -47,7 +47,7 @@ final class ServerSwitch
      * @return void
      * @throws \RuntimeException
      */
-    public function on()
+    public function reset()
     {
         if (false === unlink($this->filename)) {
             throw new RuntimeException('Server could not be turned on');
