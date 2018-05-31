@@ -18,4 +18,14 @@ final class ServerSwitchTest extends PHPUnit_Framework_TestCase
         $switch->reset();
         $this->assertFalse($switch->isOff());
     }
+
+    public function testServerSwitchDeletesWitnessFileOnDestruct()
+    {
+        $filename = sprintf('switch-%s.test', uniqid());
+        $switch = ServerSwitch::create($filename);
+        $switch->off();
+        $this->assertFileExists($filename);
+        unset($switch);
+        $this->assertFileNotExists($filename);
+    }
 }

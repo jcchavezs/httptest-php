@@ -8,7 +8,6 @@ use React\EventLoop\LoopInterface;
 use React\Http\Response;
 use React\Http\Server as HttpServer;
 use React\Socket\Server as SocketServer;
-use RuntimeException;
 
 class HttpTestServer
 {
