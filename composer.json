@@ -10,6 +10,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "ext-pcntl": "*",
         "react/http": "0.8.*"
     },
     "require-dev": {
