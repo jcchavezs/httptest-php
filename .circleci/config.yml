@@ -1,66 +1,82 @@
 version: 2.0
 
 jobs:
-  "php-5.4":
-    docker:
-      - image: circleci/php:5.4
-    steps:
-      - checkout
-      - run: composer install -n
-      - run: composer lint
-      - run: composer test
-
-  "php-5.5":
-    docker:
-      - image: circleci/php:5.5
-    steps:
-      - checkout
-      - run: composer install -n
-      - run: composer lint
-      - run: composer test
-
   "php-5.6":
     docker:
       - image: circleci/php:5.6
     steps:
       - checkout
-      - run: composer install -n
-      - run: composer lint
-      - run: composer test
+      - run:
+          name: Install pcntl extension
+          command: sudo docker-php-ext-install pcntl
+      - run:
+          name: Install dependencies
+          command: composer install -n
+      - run:
+          name: Lints code
+          command: composer lint
+      - run:
+          name: Runs tests
+          command: composer test
 
   "php-7.0":
     docker:
       - image: circleci/php:7.0
     steps:
       - checkout
-      - run: composer install -n
-      - run: composer lint
-      - run: composer test
+      - run:
+          name: Install pcntl extension
+          command: sudo docker-php-ext-install pcntl
+      - run:
+          name: Install dependencies
+          command: composer install -n
+      - run:
+          name: Lints code
+          command: composer lint
+      - run:
+          name: Runs tests
+          command: composer test
 
   "php-7.1":
     docker:
       - image: circleci/php:7.1
     steps:
       - checkout
-      - run: composer install -n
-      - run: composer lint
-      - run: composer test
+      - run:
+          name: Install pcntl extension
+          command: sudo docker-php-ext-install pcntl
+      - run:
+          name: Install dependencies
+          command: composer install -n
+      - run:
+          name: Lints code
+          command: composer lint
+      - run:
+          name: Runs tests
+          command: composer test
 
   "php-7.2":
     docker:
       - image: circleci/php:7.2
     steps:
       - checkout
-      - run: composer install -n
-      - run: composer lint
-      - run: composer test
+      - run:
+          name: Install pcntl extension
+          command: sudo docker-php-ext-install pcntl
+      - run:
+          name: Install dependencies
+          command: composer install -n
+      - run:
+          name: Lints code
+          command: composer lint
+      - run:
+          name: Runs tests
+          command: composer test
 
 workflows:
   version: 2
   build:
     jobs:
-      - "php-5.4"
-      - "php-5.5"
       - "php-5.6"
       - "php-7.0"
       - "php-7.1"
