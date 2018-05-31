@@ -17,11 +17,12 @@ final class ServerSwitch
     }
 
     /**
+     * @param string|null $filename
      * @return ServerSwitch
      */
-    public static function create()
+    public static function create($filename = null)
     {
-        return new self(self::buildWitnessFilename());
+        return new self($filename ?: self::buildWitnessFilename());
     }
 
     /**
@@ -57,5 +58,10 @@ final class ServerSwitch
     private static function buildWitnessFilename()
     {
         return sys_get_temp_dir() . '/' . uniqid('', true);
+    }
+
+    public function __destruct()
+    {
+        @unlink($this->filename);
     }
 }
