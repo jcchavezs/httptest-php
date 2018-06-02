@@ -24,7 +24,7 @@ library provides such a server and allow developers to do assertions both in the
 composer require --dev jcchavezs/httptest
 ```
 
-## Example
+## Usage
 
 Test a `cURL` HTTP request:
 
@@ -85,6 +85,12 @@ final class TestServerTest extends PHPUnit_Framework_TestCase
     }
 }
 ```
+
+**Important:** `httptest-php` uses `pcntl_fork` to run the server in a separated thread. Consider this
+when writing the test and more important, **stop the server as soon as you are done with calls** because
+objects are copied from the parent process to the child process and that could end up in having in the 
+assertions having actual value multiplied by 2 when counting calls to external resources (e.g. writing
+log entries to a file can have double of expected lines if server is stopped after the write).
 
 ## Tests
 
